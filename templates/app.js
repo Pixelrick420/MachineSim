@@ -30,7 +30,7 @@
     if (el._ch === ch) return;
     el._ch = ch;
     el.firstChild.textContent = ch;
-    el.firstChild.className = ch === blank ? 'sym blank' : 'sym';
+    el.firstChild.className = ch === blank ? (ch === '_' ? 'sym blank low' : 'sym blank') : 'sym';
   }
 
   function makeCell(i) {
