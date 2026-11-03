@@ -12,8 +12,7 @@ STATE findEqual : {
     _ : { WRITE : _ , NEXT : HALT } ;
 } ;
 STATE cleanup : {
-    1 : { WRITE : _ , NEXT : cleanup , MOVE : LEFT } ;
-    + : { WRITE : _ , NEXT : HALT } ;
+    1 : { WRITE : _ , NEXT : HALT } ;
     _ : { WRITE : _ , NEXT : HALT } ;
 } ;
 INPUT : 111+11=;

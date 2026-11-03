@@ -20,7 +20,7 @@ STATE checkLast0 : {
     1 : { WRITE : 1 , NEXT : reject , MOVE : LEFT } ;
     X : { WRITE : X , NEXT : checkLast0 , MOVE : LEFT } ;
     Y : { WRITE : Y , NEXT : checkLast0 , MOVE : LEFT } ;
-    _ : { WRITE : _ , NEXT : reject , MOVE : LEFT } ;
+    _ : { WRITE : _ , NEXT : accept } ;
 } ;
 STATE findLast1 : {
     0 : { WRITE : 0 , NEXT : findLast1 , MOVE : RIGHT } ;
@@ -34,7 +34,7 @@ STATE checkLast1 : {
     1 : { WRITE : Y , NEXT : returnStart , MOVE : LEFT } ;
     X : { WRITE : X , NEXT : checkLast1 , MOVE : LEFT } ;
     Y : { WRITE : Y , NEXT : checkLast1 , MOVE : LEFT } ;
-    _ : { WRITE : _ , NEXT : reject , MOVE : LEFT } ;
+    _ : { WRITE : _ , NEXT : accept } ;
 } ;
 STATE returnStart : {
     0 : { WRITE : 0 , NEXT : returnStart , MOVE : LEFT } ;
