@@ -24,6 +24,12 @@ LIB_SRC = $(SRC_DIR)/lib.c
 CODEGEN_SRC = $(SRC_DIR)/codegen.c
 MAIN_SRC = $(SRC_DIR)/main.c
 
+# Page templates embedded into the compiler
+TEMPLATE_FILES = $(TEMPLATES_DIR)/index.html $(TEMPLATES_DIR)/style.css \
+                 $(TEMPLATES_DIR)/engine.js $(TEMPLATES_DIR)/app.js
+TEMPLATES_GEN = $(BUILD_DIR)/templates.c
+TEMPLATES_OBJ = $(BUILD_DIR)/templates.o
+
 # Generated files
 LEXER_GEN = $(BUILD_DIR)/lex.yy.c
 PARSER_GEN_C = $(BUILD_DIR)/y.tab.c
@@ -37,7 +43,7 @@ CODEGEN_OBJ = $(BUILD_DIR)/codegen.o
 MAIN_OBJ = $(BUILD_DIR)/main.o
 
 # All objects
-OBJS = $(LEXER_OBJ) $(PARSER_OBJ) $(LIB_OBJ) $(CODEGEN_OBJ) $(MAIN_OBJ)
+OBJS = $(LEXER_OBJ) $(PARSER_OBJ) $(LIB_OBJ) $(CODEGEN_OBJ) $(MAIN_OBJ) $(TEMPLATES_OBJ)
 
 # Default target
 .PHONY: all clean test install examples dist test-build help dev-server
@@ -71,6 +77,20 @@ $(LIB_OBJ): $(LIB_SRC) $(INCLUDE_DIR)/lib.h | $(BUILD_DIR)
 # Compile codegen
 $(CODEGEN_OBJ): $(CODEGEN_SRC) $(INCLUDE_DIR)/lib.h | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
+
+# Embed templates as C string constants
+$(TEMPLATES_GEN): $(TEMPLATE_FILES) | $(BUILD_DIR)
+	@echo "GEN $@"
+	@{ \
+	for pair in index_html:index.html style_css:style.css engine_js:engine.js app_js:app.js; do \
+		var=$${pair%%:*}; file=$(TEMPLATES_DIR)/$${pair#*:}; \
+		echo "const char template_$$var[] ="; \
+		sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/^/  "/' -e 's/$$/\\n"/' $$file; \
+		echo ";"; \
+	done; } > $@
+
+$(TEMPLATES_OBJ): $(TEMPLATES_GEN)
+	$(CC) $(CFLAGS) -Wno-overlength-strings -c $< -o $@
 
 # Compile main
 $(MAIN_OBJ): $(MAIN_SRC) $(INCLUDE_DIR)/lib.h | $(BUILD_DIR)

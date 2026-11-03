@@ -1,32 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turing Machine Visualizer</title>
-    <style>
-        * { box-sizing: border-box; font-family: monospace; }
-        body { margin: 0; background: #fff; color: #000; min-height: 100vh; display: flex; flex-direction: column; }
-        #turing-viz { display: flex; flex-direction: column; gap: 0; flex: 1; max-width: 100%; }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: #f5f5f5; border-bottom: 1px solid #ccc; flex-wrap: wrap; gap: 10px; }
-        .state-display { font-size: 1.2em; font-weight: bold; }
-        .controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-        button { padding: 8px 16px; cursor: pointer; border: 1px solid #ccc; background: #fff; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-        button:hover:not(:disabled) { background: #f0f0f0; }
-        label { display: flex; align-items: center; gap: 8px; font-size: 0.9em; }
-        input[type="range"] { width: 150px; }
-        .tape-wrapper { flex: 1; overflow-x: auto; border: 1px solid #ccc; margin: 0 20px 20px; border-radius: 4px; }
-        .tape { display: flex; gap: 0; min-width: 100%; width: max-content; }
-        .cell { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-width: 40px; height: 80px; border: 1px solid #ddd; background: #fff; position: relative; padding-bottom: 8px; }
-        .cell.head { border-color: #000; background: #ffffcc; font-weight: bold; }
-        .cell.input { background: #f0f8ff; }
-        .symbol { font-size: 1.8em; line-height: 1; }
-        .head-marker { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 1.2em; color: #d00; }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}} - Turing Machine</title>
+<style>
+{{STYLE}}
+</style>
 </head>
 <body>
-    <div id="turing-viz"></div>
-    <script src="machine.js"></script>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <span class="dot"></span>
+      <h1>{{TITLE}}</h1>
+      <span class="tag">Turing machine</span>
+    </div>
+    <button class="icon" id="theme" type="button" aria-label="Toggle light and dark theme">&#9680;</button>
+  </header>
+
+  <section class="stats" aria-label="Machine status">
+    <div class="stat"><span class="label">State</span><span class="value" id="stat-state">-</span></div>
+    <div class="stat"><span class="label">Step</span><span class="value" id="stat-step">0</span></div>
+    <div class="stat"><span class="label">Reading</span><span class="value" id="stat-read">-</span></div>
+    <div class="stat"><span class="label">Status</span><span class="badge" id="stat-status" aria-live="polite">Ready</span></div>
+  </section>
+
+  <section class="card tape-card" aria-label="Tape">
+    <div class="viewport" id="viewport">
+      <div class="track" id="track"></div>
+      <div class="head-frame"><span class="head-state" id="head-state"></span></div>
+    </div>
+    <p class="last" id="last"></p>
+  </section>
+
+  <section class="card controls" aria-label="Controls">
+    <div class="btns">
+      <button type="button" id="btn-reset">Reset<kbd>R</kbd></button>
+      <button type="button" id="btn-back">Back<kbd>&larr;</kbd></button>
+      <button type="button" id="btn-step">Step<kbd>&rarr;</kbd></button>
+      <button type="button" id="btn-play" class="primary">Play<kbd>Space</kbd></button>
+    </div>
+    <label class="speed">Speed
+      <input type="range" id="speed" min="0" max="100" value="30">
+      <output id="speed-out" for="speed"></output>
+    </label>
+  </section>
+
+  <section class="panels">
+    <div class="card panel">
+      <h2 class="card-title">Transitions</h2>
+      <div class="table-wrap"><table id="table"></table></div>
+      <p class="hint">Rows are states, columns are the symbol under the head. Cells read: write, move, next state.</p>
+    </div>
+    <div class="side">
+      <div class="card panel">
+        <h2 class="card-title">Input</h2>
+        <form class="field" id="input-form" autocomplete="off">
+          <input type="text" id="input" spellcheck="false" aria-label="Input string" placeholder="empty">
+          <button type="submit">Apply</button>
+        </form>
+        <p class="error" id="input-error" role="alert"></p>
+      </div>
+      <div class="card panel">
+        <h2 class="card-title">Tape contents</h2>
+        <div class="contents" id="contents"></div>
+        <p class="hint" id="contents-note"></p>
+      </div>
+      <div class="card panel">
+        <h2 class="card-title">Machine</h2>
+        <dl class="kv" id="meta"></dl>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script id="machine-data" type="application/json">{{DATA}}</script>
+<script>
+{{ENGINE}}
+</script>
+<script>
+{{APP}}
+</script>
 </body>
 </html>
