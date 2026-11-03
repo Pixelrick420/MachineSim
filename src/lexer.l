@@ -52,6 +52,7 @@ LEFT|RIGHT|STAY         { TOKEN(DIRECTION); }
 <INPUT_BODY>{
 ";"                     { BEGIN(INITIAL); TOKEN(ENDL); }
 {WS}                    { }
+[\x80-\xff]             { lexError("input symbols must be ASCII characters"); }
 .                       { TOKEN(SYMBOL); }
 }
 
