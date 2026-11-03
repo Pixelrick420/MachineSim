@@ -1,141 +1,83 @@
 # Turing Machine Compiler
 
-A compiler that takes a Turing machine specification and an input string, and generates an interactive JavaScript visualization of the machine executing on that input.
+Compiles a Turing machine specification and input string into a single,
+self-contained HTML file. Open the file in any browser to watch the machine run.
 
-## Project Structure
+## Quick start
 
-```
-Turing/
-├── Makefile              # Build system
-├── README.md             # This file
-├── include/
-│   └── lib.h             # AST node definitions
-├── src/
-│   ├── lexer.l           # Flex lexer specification
-│   ├── parser.y          # Bison parser specification
-│   ├── lib.c             # AST utility functions
-│   └── codegen.c         # JavaScript code generator
-├── examples/
-│   ├── hello-world.machine
-│   ├── binary-increment.machine
-│   ├── unary-add.machine
-│   ├── palindrome.machine
-│   └── busy-beaver.machine
-├── templates/
-│   └── index.html        # HTML template for visualization
-├── build/                # Generated build artifacts (gitignored)
-├── bin/                  # Compiled binaries (gitignored)
-└── dist/                 # Generated visualizations (gitignored)
+```bash
+make                                   # build the compiler
+make build-all                         # dist/<example>.html for every example
+open dist/unary-add.html               # or double-click it, no server needed
+
+./bin/turing-compiler -o out.html examples/palindrome.machine
+./bin/turing-compiler examples/palindrome.machine > out.html   # stdout works too
 ```
 
-## Turing Machine Language
+## Project structure
 
-The language defines a Turing machine with the following syntax:
+```
+include/   lib.h (AST), machine.h (machine model), templates.h
+src/       lexer.l, parser.y, lib.c, machine.c (AST -> model),
+           validate.c (semantic checks), codegen.c (HTML output), main.c
+templates/ index.html, style.css, engine.js, app.js (embedded into the compiler)
+examples/  sample machines
+tests/     check.js and error cases, run with `make test`
+```
+
+The templates are embedded into the compiler binary at build time, so the
+generated page needs nothing else: no scripts, styles or fonts are fetched.
+
+## Language
 
 ```
 BLANK : <symbol>;
 ALPHABET : { <symbol> , <symbol> , ... };
-START : <state_name>;
-STATE <state_name> : {
-    <symbol> : { WRITE : <symbol> , NEXT : <state_name> , MOVE : <LEFT|RIGHT> } ;
+START : <state>;
+STATE <state> : {
+    <symbol> : { WRITE : <symbol> , NEXT : <state|HALT> , MOVE : <LEFT|RIGHT|STAY> } ;
     ...
 } ;
-INPUT : <string>;
+INPUT : <symbols>;
+// comments run to the end of the line
 ```
 
-### Example: Hello World
+- A symbol is one character: a digit, an uppercase letter, a single lowercase
+  letter, or one of `_ + = ! @ # $ % & * < > | ~ ^ ? . ( ) [ ]`.
+- Everything after `INPUT :` up to `;` is read character by character, so
+  `INPUT : abba;` works. Whitespace is ignored.
+- In a transition every action is optional. `WRITE` defaults to the symbol read,
+  `MOVE` to `STAY` and `NEXT` to `HALT`.
+- `BLANK` defaults to `_` and is always part of the alphabet. `START` defaults
+  to the first state. A missing transition makes the machine stop as "stuck".
 
-```
-BLANK : $;
-ALPHABET : { 0 , 1 , $ };
-START : a;
-STATE a : {
-    0 : { WRITE : 0 , NEXT : b , MOVE : LEFT } ;
-    1 : { WRITE : 0 , NEXT : b , MOVE : LEFT } ;
-    $ : { WRITE : 0 , NEXT : b , MOVE : LEFT } ;
-} ;
-STATE b : {
-    0 : { WRITE : 1 , NEXT : HALT } ;
-    1 : { WRITE : 1 , NEXT : HALT } ;
-    $ : { WRITE : 1 , NEXT : HALT } ;
-} ;
-INPUT : 001;
-```
+The compiler reports errors with file and line, for example undefined states,
+symbols outside the alphabet, duplicate states or transitions, and a missing
+start state. It also warns about unreachable states.
 
-## Building
+## The visualization
 
-```bash
-# Build the compiler
-make
+- Tape slides under a fixed head; writes flash and the active transition is
+  highlighted in the table.
+- Play, pause, step, step back (up to 1M steps), reset.
+- Speed from 0.5 steps/s to "max", which runs millions of steps per second
+  (the 47M step busy beaver finishes in a few seconds).
+- Edit the input in the page and re-run without recompiling.
+- Light and dark themes, keyboard shortcuts (space, arrows, R), mobile layout.
 
-# Build and test with hello-world example
-make test
-
-# Build visualizations for all examples
-make build-all
-
-# Quick compilation test (CI-friendly)
-make test-build
-
-# Start development server
-make dev-server
-
-# Clean build artifacts
-make clean
-```
-
-## Running the Compiler
-
-```bash
-# Compile a machine file to stdout (JavaScript)
-./bin/turing-compiler examples/hello-world.machine
-
-# Save output to a file
-./bin/turing-compiler examples/hello-world.machine > machine.js
-```
-
-## Visualization
-
-The compiler generates a self-contained JavaScript file that includes:
-- The Turing machine configuration
-- An interactive `TuringVisualizer` class
-- Auto-initialization on DOM load
-
-To view a visualization:
-1. Run `make build-all` to generate HTML/JS files in `dist/`
-2. Open any `.html` file in a browser
-3. Or run `make dev-server` and visit `http://localhost:8000`
-
-### Visualization Features
-
-- **Step**: Execute one transition
-- **Run**: Auto-step with adjustable speed
-- **Stop**: Pause auto-stepping
-- **Undo**: Go back one step (with history)
-- **Reset**: Return to initial state
-- **Speed control**: Adjust animation speed (50-2000ms)
-
-The tape shows:
-- **Head position** (▼ marker, highlighted cell)
-- **Initial input** (darker background)
-- **Cell indices** for reference
-
-## Example Machines
+## Examples
 
 | Machine | Description |
 |---------|-------------|
 | `hello-world` | Simple 2-state machine |
 | `binary-increment` | Increments a binary number |
-| `unary-add` | Adds two unary numbers (111+11=) |
-| `palindrome` | Checks if binary input is a palindrome |
-| `busy-beaver` | 5-state busy beaver (runs 47M+ steps!) |
+| `unary-add` | Adds two unary numbers (`111+11=` gives five 1s) |
+| `palindrome` | Writes 1 left of the input if it is a binary palindrome, else 0 |
+| `busy-beaver` | 5-state champion, halts after 47,176,870 steps |
 
 ## Requirements
 
-- `gcc` - C compiler
-- `flex` - Lexer generator
-- `bison` - Parser generator
-- `make` - Build system
+`gcc`, `flex`, `bison`, `make`. Tests also need `node`.
 
 ## License
 
