@@ -1,31 +1,58 @@
 %{
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "../include/lib.h"
 #include "y.tab.h"
+
+#define TOKEN(t) do { \
+    yylval.node = createASTNode(TERMINAL, strdup(yytext), 0); \
+    return t; \
+} while (0)
 %}
 
-%option noyywrap
+%option noyywrap yylineno nounput noinput
+
+/* After the INPUT keyword the tape contents are read character by
+ * character, so that lowercase letters and digits can be used as symbols. */
+%x INPUT_COLON INPUT_BODY
+
+WS      [ \t\r\n]+
 
 %%
-STATE           { yylval.node = createASTNode(TERMINAL, strdup(yytext), 0); return STATE; }
-INPUT           { yylval.node = createASTNode(TERMINAL, strdup(yytext), 0); return INPUT; }
-BLANK           { yylval.node = createASTNode(TERMINAL, strdup(yytext), 0); return BLANK; }
-ALPHABET        { yylval.node = createASTNode(TERMINAL, strdup(yytext), 0); return ALPHABET; }
-WRITE           { yylval.node = createASTNode(TERMINAL, strdup(yytext), 0); return WRITE; }
-NEXT            { yylval.node = createASTNode(TERMINAL, strdup(yytext), 0); return NEXT; }
-MOVE            { yylval.node = createASTNode(TERMINAL, strdup(yytext), 0); return MOVE; }
-HALT            { yylval.node = createASTNode(TERMINAL, strdup(yytext), 0); return HALT; }
-START           { yylval.node = createASTNode(TERMINAL, strdup(yytext), 0); return START; }
-(LEFT|RIGHT)    { yylval.node = createASTNode(TERMINAL, strdup(yytext), 0); return DIRECTION; }
-\{              { yylval.node = createASTNode(TERMINAL, strdup(yytext), 0); return LBRACE; }
-\}              { yylval.node = createASTNode(TERMINAL, strdup(yytext), 0); return RBRACE; }
-\;              { yylval.node = createASTNode(TERMINAL, strdup(yytext), 0); return ENDL; }
-\:              { yylval.node = createASTNode(TERMINAL, strdup(yytext), 0); return ASSIGN; }
-\,              { yylval.node = createASTNode(TERMINAL, strdup(yytext), 0); return COMMA; }
-[a-z][a-zA-Z0-9]*  { yylval.node = createASTNode(TERMINAL, strdup(yytext), 0); return IDENTIFIER; }
-[01A-Z_+=!@#$%&-]   { yylval.node = createASTNode(TERMINAL, strdup(yytext), 0); return SYMBOL; }
-"//".*           { /* skip comments */ }
-[ \n\t]         { /* skip whitespace */ }
-.               { /* ignore unknown */ }
+
+STATE                   { TOKEN(STATE); }
+INPUT                   { BEGIN(INPUT_COLON); TOKEN(INPUT); }
+BLANK                   { TOKEN(BLANK); }
+ALPHABET                { TOKEN(ALPHABET); }
+WRITE                   { TOKEN(WRITE); }
+NEXT                    { TOKEN(NEXT); }
+MOVE                    { TOKEN(MOVE); }
+HALT                    { TOKEN(HALT); }
+START                   { TOKEN(START); }
+LEFT|RIGHT|STAY         { TOKEN(DIRECTION); }
+"{"                     { TOKEN(LBRACE); }
+"}"                     { TOKEN(RBRACE); }
+";"                     { TOKEN(ENDL); }
+":"                     { TOKEN(ASSIGN); }
+","                     { TOKEN(COMMA); }
+[a-z][a-zA-Z0-9]*       { TOKEN(IDENTIFIER); }
+[0-9A-Z_+=!@#$%&*<>|~^?.()\[\]-] { TOKEN(SYMBOL); }
+[A-Z_][A-Z0-9_]+        { lexError("unknown keyword '%s'", yytext); }
+"//".*                  { /* comment */ }
+{WS}                    { /* whitespace */ }
+.                       { lexError("unexpected character '%s'", yytext); }
+
+<INPUT_COLON>{
+":"                     { BEGIN(INPUT_BODY); TOKEN(ASSIGN); }
+{WS}                    { }
+.                       { lexError("expected ':' after INPUT, found '%s'", yytext); }
+}
+
+<INPUT_BODY>{
+";"                     { BEGIN(INITIAL); TOKEN(ENDL); }
+{WS}                    { }
+.                       { TOKEN(SYMBOL); }
+}
+
 %%

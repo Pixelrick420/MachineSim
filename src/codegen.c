@@ -147,7 +147,7 @@ static void generateAlphabet(ASTNode *stmt) {
   ASTNode *curr = symbols;
   while (curr && curr->type == SYMBOLS) {
     count++;
-    if (curr->n == 1)
+    if (curr->n < 2)
       break;
     curr = curr->children[0];
   }
@@ -194,7 +194,7 @@ static void generateInput(ASTNode *stmt) {
   ASTNode *curr = strNode;
   while (curr && curr->type == STRING) {
     count++;
-    if (curr->n == 1)
+    if (curr->n < 2)
       break;
     curr = curr->children[0];
   }
@@ -205,12 +205,10 @@ static void generateInput(ASTNode *stmt) {
 
   curr = strNode;
   while (curr && curr->type == STRING) {
-    if (curr->n == 1) {
-      temp[tempCount++] = curr->children[0]->value;
-    } else if (curr->n == 2) {
+    if (curr->n == 2) {
       temp[tempCount++] = curr->children[1]->value;
     }
-    if (curr->n == 1)
+    if (curr->n < 2)
       break;
     curr = curr->children[0];
   }

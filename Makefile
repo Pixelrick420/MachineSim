@@ -22,6 +22,7 @@ LEXER_SRC = $(SRC_DIR)/lexer.l
 PARSER_SRC = $(SRC_DIR)/parser.y
 LIB_SRC = $(SRC_DIR)/lib.c
 CODEGEN_SRC = $(SRC_DIR)/codegen.c
+MAIN_SRC = $(SRC_DIR)/main.c
 
 # Generated files
 LEXER_GEN = $(BUILD_DIR)/lex.yy.c
@@ -33,9 +34,10 @@ LEXER_OBJ = $(BUILD_DIR)/lex.yy.o
 PARSER_OBJ = $(BUILD_DIR)/y.tab.o
 LIB_OBJ = $(BUILD_DIR)/lib.o
 CODEGEN_OBJ = $(BUILD_DIR)/codegen.o
+MAIN_OBJ = $(BUILD_DIR)/main.o
 
 # All objects
-OBJS = $(LEXER_OBJ) $(PARSER_OBJ) $(LIB_OBJ) $(CODEGEN_OBJ)
+OBJS = $(LEXER_OBJ) $(PARSER_OBJ) $(LIB_OBJ) $(CODEGEN_OBJ) $(MAIN_OBJ)
 
 # Default target
 .PHONY: all clean test install examples dist test-build help dev-server
@@ -68,6 +70,10 @@ $(LIB_OBJ): $(LIB_SRC) $(INCLUDE_DIR)/lib.h | $(BUILD_DIR)
 
 # Compile codegen
 $(CODEGEN_OBJ): $(CODEGEN_SRC) $(INCLUDE_DIR)/lib.h | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Compile main
+$(MAIN_OBJ): $(MAIN_SRC) $(INCLUDE_DIR)/lib.h | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Link compiler
