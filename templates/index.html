@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turing Machine Visualizer</title>
+    <style>
+        * { box-sizing: border-box; font-family: monospace; }
+        body { margin: 0; background: #fff; color: #000; min-height: 100vh; display: flex; flex-direction: column; }
+        #turing-viz { display: flex; flex-direction: column; gap: 0; flex: 1; max-width: 100%; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: #f5f5f5; border-bottom: 1px solid #ccc; flex-wrap: wrap; gap: 10px; }
+        .state-display { font-size: 1.2em; font-weight: bold; }
+        .controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        button { padding: 8px 16px; cursor: pointer; border: 1px solid #ccc; background: #fff; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button:hover:not(:disabled) { background: #f0f0f0; }
+        label { display: flex; align-items: center; gap: 8px; font-size: 0.9em; }
+        input[type="range"] { width: 150px; }
+        .tape-wrapper { flex: 1; overflow-x: auto; border: 1px solid #ccc; margin: 0 20px 20px; border-radius: 4px; }
+        .tape { display: flex; gap: 0; min-width: 100%; width: max-content; }
+        .cell { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-width: 40px; height: 80px; border: 1px solid #ddd; background: #fff; position: relative; padding-bottom: 8px; }
+        .cell.head { border-color: #000; background: #ffffcc; font-weight: bold; }
+        .cell.input { background: #f0f8ff; }
+        .symbol { font-size: 1.8em; line-height: 1; }
+        .head-marker { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 1.2em; color: #d00; }
+    </style>
+</head>
+<body>
+    <div id="turing-viz"></div>
+    <script src="machine.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+BLANK : _;
+ALPHABET : { 0 , 1 , _ };
+START : start;
+STATE start : {
+    0 : { WRITE : 0 , NEXT : start , MOVE : RIGHT } ;
+    1 : { WRITE : 1 , NEXT : start , MOVE : RIGHT } ;
+    _ : { WRITE : _ , NEXT : carry , MOVE : LEFT } ;
+} ;
+STATE carry : {
+    0 : { WRITE : 1 , NEXT : HALT } ;
+    1 : { WRITE : 0 , NEXT : carry , MOVE : LEFT } ;
+    _ : { WRITE : 1 , NEXT : HALT } ;
+} ;
+INPUT : 1011;

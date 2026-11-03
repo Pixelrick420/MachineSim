@@ -1,0 +1,19 @@
+BLANK : _;
+ALPHABET : { 1 , + , = , _ };
+START : findPlus;
+STATE findPlus : {
+    1 : { WRITE : 1 , NEXT : findPlus , MOVE : RIGHT } ;
+    + : { WRITE : 1 , NEXT : findEqual , MOVE : RIGHT } ;
+    _ : { WRITE : _ , NEXT : HALT } ;
+} ;
+STATE findEqual : {
+    1 : { WRITE : 1 , NEXT : findEqual , MOVE : RIGHT } ;
+    = : { WRITE : _ , NEXT : cleanup , MOVE : LEFT } ;
+    _ : { WRITE : _ , NEXT : HALT } ;
+} ;
+STATE cleanup : {
+    1 : { WRITE : _ , NEXT : cleanup , MOVE : LEFT } ;
+    + : { WRITE : _ , NEXT : HALT } ;
+    _ : { WRITE : _ , NEXT : HALT } ;
+} ;
+INPUT : 111+11=;

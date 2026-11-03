@@ -1,0 +1,58 @@
+BLANK : _;
+ALPHABET : { 0 , 1 , X , Y , _ };
+START : markFirst;
+STATE markFirst : {
+    0 : { WRITE : X , NEXT : findLast0 , MOVE : RIGHT } ;
+    1 : { WRITE : Y , NEXT : findLast1 , MOVE : RIGHT } ;
+    X : { WRITE : X , NEXT : markFirst , MOVE : RIGHT } ;
+    Y : { WRITE : Y , NEXT : markFirst , MOVE : RIGHT } ;
+    _ : { WRITE : _ , NEXT : accept , MOVE : LEFT } ;
+} ;
+STATE findLast0 : {
+    0 : { WRITE : 0 , NEXT : findLast0 , MOVE : RIGHT } ;
+    1 : { WRITE : 1 , NEXT : findLast0 , MOVE : RIGHT } ;
+    X : { WRITE : X , NEXT : findLast0 , MOVE : RIGHT } ;
+    Y : { WRITE : Y , NEXT : findLast0 , MOVE : RIGHT } ;
+    _ : { WRITE : _ , NEXT : checkLast0 , MOVE : LEFT } ;
+} ;
+STATE checkLast0 : {
+    0 : { WRITE : X , NEXT : returnStart , MOVE : LEFT } ;
+    1 : { WRITE : 1 , NEXT : reject , MOVE : LEFT } ;
+    X : { WRITE : X , NEXT : checkLast0 , MOVE : LEFT } ;
+    Y : { WRITE : Y , NEXT : checkLast0 , MOVE : LEFT } ;
+    _ : { WRITE : _ , NEXT : reject , MOVE : LEFT } ;
+} ;
+STATE findLast1 : {
+    0 : { WRITE : 0 , NEXT : findLast1 , MOVE : RIGHT } ;
+    1 : { WRITE : 1 , NEXT : findLast1 , MOVE : RIGHT } ;
+    X : { WRITE : X , NEXT : findLast1 , MOVE : RIGHT } ;
+    Y : { WRITE : Y , NEXT : findLast1 , MOVE : RIGHT } ;
+    _ : { WRITE : _ , NEXT : checkLast1 , MOVE : LEFT } ;
+} ;
+STATE checkLast1 : {
+    0 : { WRITE : 0 , NEXT : reject , MOVE : LEFT } ;
+    1 : { WRITE : Y , NEXT : returnStart , MOVE : LEFT } ;
+    X : { WRITE : X , NEXT : checkLast1 , MOVE : LEFT } ;
+    Y : { WRITE : Y , NEXT : checkLast1 , MOVE : LEFT } ;
+    _ : { WRITE : _ , NEXT : reject , MOVE : LEFT } ;
+} ;
+STATE returnStart : {
+    0 : { WRITE : 0 , NEXT : returnStart , MOVE : LEFT } ;
+    1 : { WRITE : 1 , NEXT : returnStart , MOVE : LEFT } ;
+    X : { WRITE : X , NEXT : returnStart , MOVE : LEFT } ;
+    Y : { WRITE : Y , NEXT : returnStart , MOVE : LEFT } ;
+    _ : { WRITE : _ , NEXT : markFirst , MOVE : RIGHT } ;
+} ;
+STATE accept : {
+    X : { WRITE : X , NEXT : accept , MOVE : LEFT } ;
+    Y : { WRITE : Y , NEXT : accept , MOVE : LEFT } ;
+    _ : { WRITE : 1 , NEXT : HALT } ;
+} ;
+STATE reject : {
+    0 : { WRITE : 0 , NEXT : reject , MOVE : LEFT } ;
+    1 : { WRITE : 1 , NEXT : reject , MOVE : LEFT } ;
+    X : { WRITE : X , NEXT : reject , MOVE : LEFT } ;
+    Y : { WRITE : Y , NEXT : reject , MOVE : LEFT } ;
+    _ : { WRITE : 0 , NEXT : HALT } ;
+} ;
+INPUT : 101;

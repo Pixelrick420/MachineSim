@@ -1,0 +1,14 @@
+BLANK : $;
+ALPHABET : { 0 , 1 , $ };
+START : a;
+STATE a : {
+    0 : { WRITE : 0 , NEXT : b , MOVE : LEFT } ;
+    1 : { WRITE : 0 , NEXT : b , MOVE : LEFT } ;
+    $ : { WRITE : 0 , NEXT : b , MOVE : LEFT } ;
+} ;
+STATE b : {
+    0 : { WRITE : 1 , NEXT : HALT } ;
+    1 : { WRITE : 1 , NEXT : HALT } ;
+    $ : { WRITE : 1 , NEXT : HALT } ;
+} ;
+INPUT : 001;

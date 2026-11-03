@@ -1,0 +1,29 @@
+BLANK : _;
+ALPHABET : { 0 , 1 , _ };
+START : a;
+STATE a : {
+    0 : { WRITE : 1 , NEXT : b , MOVE : RIGHT } ;
+    1 : { WRITE : 1 , NEXT : c , MOVE : LEFT } ;
+    _ : { WRITE : 1 , NEXT : b , MOVE : RIGHT } ;
+} ;
+STATE b : {
+    0 : { WRITE : 1 , NEXT : a , MOVE : LEFT } ;
+    1 : { WRITE : 1 , NEXT : d , MOVE : RIGHT } ;
+    _ : { WRITE : 1 , NEXT : a , MOVE : LEFT } ;
+} ;
+STATE c : {
+    0 : { WRITE : 1 , NEXT : d , MOVE : RIGHT } ;
+    1 : { WRITE : 0 , NEXT : e , MOVE : LEFT } ;
+    _ : { WRITE : 1 , NEXT : d , MOVE : RIGHT } ;
+} ;
+STATE d : {
+    0 : { WRITE : 1 , NEXT : a , MOVE : LEFT } ;
+    1 : { WRITE : 1 , NEXT : HALT , MOVE : LEFT } ;
+    _ : { WRITE : 1 , NEXT : a , MOVE : LEFT } ;
+} ;
+STATE e : {
+    0 : { WRITE : 1 , NEXT : a , MOVE : LEFT } ;
+    1 : { WRITE : 0 , NEXT : a , MOVE : LEFT } ;
+    _ : { WRITE : 1 , NEXT : a , MOVE : LEFT } ;
+} ;
+INPUT : ;
