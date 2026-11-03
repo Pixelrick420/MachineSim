@@ -22,6 +22,7 @@ PARSER_SRC = $(SRC_DIR)/parser.y
 LIB_SRC = $(SRC_DIR)/lib.c
 CODEGEN_SRC = $(SRC_DIR)/codegen.c
 MACHINE_SRC = $(SRC_DIR)/machine.c
+VALIDATE_SRC = $(SRC_DIR)/validate.c
 MAIN_SRC = $(SRC_DIR)/main.c
 
 # Page templates embedded into the compiler
@@ -41,10 +42,11 @@ PARSER_OBJ = $(BUILD_DIR)/y.tab.o
 LIB_OBJ = $(BUILD_DIR)/lib.o
 CODEGEN_OBJ = $(BUILD_DIR)/codegen.o
 MACHINE_OBJ = $(BUILD_DIR)/machine.o
+VALIDATE_OBJ = $(BUILD_DIR)/validate.o
 MAIN_OBJ = $(BUILD_DIR)/main.o
 
 # All objects
-OBJS = $(LEXER_OBJ) $(PARSER_OBJ) $(LIB_OBJ) $(CODEGEN_OBJ) $(MACHINE_OBJ) $(MAIN_OBJ) $(TEMPLATES_OBJ)
+OBJS = $(LEXER_OBJ) $(PARSER_OBJ) $(LIB_OBJ) $(CODEGEN_OBJ) $(MACHINE_OBJ) $(VALIDATE_OBJ) $(MAIN_OBJ) $(TEMPLATES_OBJ)
 
 # Default target
 .PHONY: all clean test test-build build-all build-example install help
@@ -95,6 +97,9 @@ $(TEMPLATES_GEN): $(TEMPLATE_FILES) | $(BUILD_DIR)
 
 $(TEMPLATES_OBJ): $(TEMPLATES_GEN)
 	$(CC) $(CFLAGS) -Wno-overlength-strings -c $< -o $@
+
+$(VALIDATE_OBJ): $(VALIDATE_SRC) $(INCLUDE_DIR)/machine.h | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Compile main
 $(MAIN_OBJ): $(MAIN_SRC) $(INCLUDE_DIR)/machine.h | $(BUILD_DIR)

@@ -43,6 +43,9 @@ typedef struct {
 int buildMachine(ASTNode* root, Machine* m, const char* name);
 
 
+/* Check a machine for semantic errors. Returns the number of errors. */
+int validateMachine(const Machine* m);
+
 /* Write the self-contained HTML visualization for the machine. */
 void emitHtml(const Machine* m, FILE* out);
 

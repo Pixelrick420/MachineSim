@@ -73,6 +73,8 @@ int main(int argc, char** argv) {
     Machine m;
     if (buildMachine(astRoot, &m, displayName(inPath)) > 0)
         return 1;
+    if (validateMachine(&m) > 0)
+        return 1;
 
     FILE* out = stdout;
     if (outPath) {
