@@ -1,0 +1,7 @@
+// expect: input symbol
+BLANK : _;
+ALPHABET : { 0 , _ };
+STATE a : {
+    0 : { NEXT : HALT } ;
+} ;
+INPUT : 012;

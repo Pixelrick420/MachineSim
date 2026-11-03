@@ -1,0 +1,6 @@
+// expect: not in the alphabet
+BLANK : _;
+ALPHABET : { 0 , _ };
+STATE a : {
+    0 : { WRITE : 1 , NEXT : HALT } ;
+} ;

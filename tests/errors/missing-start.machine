@@ -1,0 +1,7 @@
+// expect: start state
+BLANK : _;
+ALPHABET : { 0 , _ };
+START : q;
+STATE a : {
+    0 : { NEXT : HALT } ;
+} ;

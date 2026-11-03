@@ -1,0 +1,6 @@
+// expect: undefined state
+BLANK : _;
+ALPHABET : { 0 , _ };
+STATE a : {
+    0 : { NEXT : nowhere } ;
+} ;

@@ -130,6 +130,7 @@ test-build: $(COMPILER)
 	done
 
 test: test-build
+	node tests/check.js
 
 # Clean build artifacts
 clean:

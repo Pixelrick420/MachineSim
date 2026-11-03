@@ -1,0 +1,7 @@
+// expect: two transitions
+BLANK : _;
+ALPHABET : { 0 , _ };
+STATE a : {
+    0 : { NEXT : HALT } ;
+    0 : { NEXT : HALT } ;
+} ;

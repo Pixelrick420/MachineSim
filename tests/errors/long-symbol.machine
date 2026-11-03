@@ -1,0 +1,3 @@
+// expect: single character
+BLANK : _;
+ALPHABET : { 0 , ab };
