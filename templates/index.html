@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{TITLE}} - Turing Machine</title>
+<script>
+// Apply a saved theme before the first paint, so it never flashes the other one.
+try { var t = localStorage.getItem('turing-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) { /* storage unavailable */ }
+</script>
 <style>
 {{STYLE}}
 </style>

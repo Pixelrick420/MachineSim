@@ -334,10 +334,6 @@
     root.dataset.theme = dark ? 'light' : 'dark';
     try { localStorage.setItem('turing-theme', root.dataset.theme); } catch (e) { /* storage unavailable */ }
   });
-  try {
-    const saved = localStorage.getItem('turing-theme');
-    if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved;
-  } catch (e) { /* storage unavailable */ }
 
   // ---------- init ----------
   function buildMeta() {
