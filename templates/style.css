@@ -162,18 +162,34 @@ body {
   position: absolute; top: 0; height: 64px;
   width: calc(var(--cw) - 6px); margin-left: 3px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  background: var(--surface-2); border: 1px solid transparent; border-radius: 10px;
+  background-color: var(--surface-2); border: 1px solid transparent; border-radius: 10px;
   box-shadow: var(--shadow-border);
+  transition-property: background-color;
+  transition-duration: 700ms;
+  transition-timing-function: ease-out;
 }
-.cell.in { background: var(--accent-soft); }
+.cell.in { background-color: var(--accent-soft); }
 .cell .sym { display: block; font-family: var(--mono); font-size: 24px; font-weight: 600; line-height: 1; }
-.cell .sym.blank { color: var(--muted); font-weight: 400; opacity: 0.6; }
+/* Dim through the color, not opacity: opacity belongs to the write transition below. */
+.cell .sym.blank { color: color-mix(in srgb, var(--muted) 60%, transparent); font-weight: 400; }
 .cell .sym.low { transform: translateY(-0.3em); }
 .cell .idx { position: absolute; bottom: 4px; font-size: 10px; color: var(--muted); font-family: var(--mono); }
-.cell.wrote { animation: flash 0.7s ease-out; }
-.cell.wrote .sym { animation: pop 0.35s ease-out; }
-@keyframes flash { 0% { background: var(--flash); } 100% { background: var(--surface-2); } }
-@keyframes pop { 0% { transform: scale(0.5); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
+
+/* A write snaps a cell to its start pose (flash color, symbol small and blurred)
+ * and the transitions above carry it back to rest. They retarget, so a second
+ * write mid-fade restarts cleanly, and they fade to the cell's real resting
+ * color rather than a fixed one. */
+.cell.wrote { background-color: var(--flash); transition-duration: 0ms; }
+.cell .sym {
+  transition-property: opacity;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+.cell.wrote .sym { opacity: 0; transition-duration: 0ms; }
+@media (prefers-reduced-motion: no-preference) {
+  .cell .sym { transition-property: opacity, scale, filter; }
+  .cell.wrote .sym { scale: 0.25; filter: blur(4px); }
+}
 
 /* Concentric with the cell: 10px cell radius + 2px gap + 2px border = 14px. */
 .head-frame {
@@ -309,7 +325,4 @@ input[type="text"] {
   .controls { flex-direction: column; align-items: stretch; }
   .speed { justify-content: space-between; }
   input[type="range"] { flex: 1; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .cell.wrote, .cell.wrote .sym { animation: none; }
 }

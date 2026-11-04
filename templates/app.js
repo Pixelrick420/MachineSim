@@ -69,9 +69,9 @@
   function flashWrite(pos) {
     const el = cells.get(pos);
     if (!el) return;
-    el.classList.remove('wrote');
-    void el.offsetWidth;
-    el.classList.add('wrote');
+    el.classList.add('wrote');      // snap to the start pose
+    void el.offsetWidth;            // commit it
+    el.classList.remove('wrote');   // the cell's own transitions carry it back to rest
   }
 
   // ---------- table ----------
@@ -214,17 +214,18 @@
     else els.speedOut.textContent = (rate / 1000).toFixed(1) + 'k steps/s';
   }
 
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   /** Run `n` steps, animating only when single steps are slow enough to see. */
   function advance(n) {
     const r = Math.min(rate, 1e9);
     const done = engine.run(n);
     if (done === 0) { render(0, 0); return; }
-    if (done === 1 && r <= 60 && !reduceMotion) {
+    if (done === 1 && r <= 60) {
+      // Under reduced motion the tape jumps; the write highlight still fades in as color and opacity.
       const interval = 1000 / r;
-      const slide = r <= 12 ? Math.min(380, Math.max(80, interval * 0.7)) : interval * 0.9;
-      const delay = r <= 3 ? 140 : 0;
+      const slide = reduceMotion.matches ? 0 : r <= 12 ? Math.min(380, Math.max(80, interval * 0.7)) : interval * 0.9;
+      const delay = r <= 3 && !reduceMotion.matches ? 140 : 0;
       const t = engine.lastTransition();
       render(slide, delay);
       if (t && t.read !== t.rule.write) flashWrite(t.pos);
@@ -277,7 +278,7 @@
 
   function stepBack() {
     pause();
-    if (engine.back()) render(reduceMotion ? 0 : 220, 0);
+    if (engine.back()) render(reduceMotion.matches ? 0 : 220, 0);
   }
 
   function resetMachine(input) {
