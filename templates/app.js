@@ -326,14 +326,32 @@
     resizeTimer = setTimeout(() => { measure(); clearTape(); render(0, 0); }, 100);
   });
 
+  // ---------- theme ----------
+  const osDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+  /**
+   * Run `change` with every transition off, so the new theme lands in one frame
+   * instead of each color fading at once. The sun and moon keep their cross-fade:
+   * it is the click's feedback and animates no color.
+   */
+  function withoutTransitions(change) {
+    const style = document.createElement('style');
+    style.textContent = '*:not(.swap > .icon),*::before,*::after{transition:none !important}';
+    document.head.append(style);
+    change();
+    void document.body.offsetHeight; // force a synchronous style flush
+    requestAnimationFrame(() => requestAnimationFrame(() => style.remove()));
+  }
+
   els.theme.addEventListener('click', () => {
     const root = document.documentElement;
-    const dark = root.dataset.theme
-      ? root.dataset.theme === 'dark'
-      : window.matchMedia('(prefers-color-scheme: dark)').matches;
-    root.dataset.theme = dark ? 'light' : 'dark';
-    try { localStorage.setItem('turing-theme', root.dataset.theme); } catch (e) { /* storage unavailable */ }
+    const dark = root.dataset.theme ? root.dataset.theme === 'dark' : osDark.matches;
+    const next = dark ? 'light' : 'dark';
+    withoutTransitions(() => { root.dataset.theme = next; });
+    try { localStorage.setItem('turing-theme', next); } catch (e) { /* storage unavailable */ }
   });
+  // The OS theme can change under a page that follows it.
+  osDark.addEventListener('change', () => withoutTransitions(() => {}));
 
   // ---------- init ----------
   function buildMeta() {
