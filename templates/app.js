@@ -9,7 +9,7 @@
   const els = {
     viewport: $('viewport'), track: $('track'), headState: $('head-state'), last: $('last'),
     state: $('stat-state'), step: $('stat-step'), read: $('stat-read'), status: $('stat-status'),
-    reset: $('btn-reset'), back: $('btn-back'), stepBtn: $('btn-step'), play: $('btn-play'),
+    reset: $('btn-reset'), back: $('btn-back'), stepBtn: $('btn-step'), play: $('btn-play'), playLabel: $('play-label'),
     speed: $('speed'), speedOut: $('speed-out'), table: $('table'),
     form: $('input-form'), input: $('input'), error: $('input-error'),
     contents: $('contents'), contentsNote: $('contents-note'), meta: $('meta'), theme: $('theme'),
@@ -188,7 +188,8 @@
     els.stepBtn.disabled = done;
     els.play.disabled = done;
     els.back.disabled = engine.histLen === 0;
-    els.play.firstChild.textContent = playing ? 'Pause' : 'Play';
+    els.playLabel.textContent = playing ? 'Pause' : 'Play';
+    els.play.dataset.playing = String(playing);
   }
 
   function render(slideMs, delayMs) {
