@@ -36,7 +36,8 @@ function run(machine, input) {
 // Every example compiles to a single file with nothing left to fetch.
 for (const f of fs.readdirSync(path.join(root, 'examples')).filter((f) => f.endsWith('.machine'))) {
   const { html } = load(path.join(root, 'examples', f));
-  const external = /<(script|link|img)\b[^>]*\b(src|href)=/i.test(html);
+  // data: URIs are self-contained, anything else would be fetched.
+  const external = /<(script|link|img)\b[^>]*\b(src|href)=(?!["']?data:)/i.test(html);
   check(`${f} compiles to a standalone page`, !external && !html.includes('{{') && !/gradient/i.test(html));
 }
 
