@@ -8,7 +8,6 @@
 
 [![CI](https://github.com/Pixelrick420/MachineSim/actions/workflows/ci.yml/badge.svg)](https://github.com/Pixelrick420/MachineSim/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
-![Output: a single file](https://img.shields.io/badge/output-single%20file-2563eb)
 
 [Quick start](#quick-start) · [Language](docs/language.md) · [Examples](#examples) · [How it works](docs/architecture.md) · [Contributing](CONTRIBUTING.md)
 
