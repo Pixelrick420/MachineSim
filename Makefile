@@ -131,6 +131,7 @@ test-build: $(COMPILER)
 
 test: test-build
 	node tests/check.js
+	node tests/ui.js
 
 # Clean build artifacts
 clean:
