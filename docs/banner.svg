@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 728 150" width="728" height="150" role="img" aria-label="A Turing machine tape with the head over a plus sign">
+  <style>
+    .cell { fill: #f5f5f4; stroke: #0000000f; stroke-width: 1; }
+    .in { fill: #dbeafe; stroke: #0000000f; stroke-width: 1; }
+    .sym { fill: #1c1917; font: 700 28px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .blank { fill: #a8a29e; }
+    .frame { fill: none; stroke: #2563eb; stroke-width: 2; }
+    .pill { fill: #2563eb; }
+    .label { fill: #fff; font: 600 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    @media (prefers-color-scheme: dark) {
+      .cell { fill: #211e1c; stroke: #ffffff14; }
+      .in { fill: #1e3a5f; stroke: #ffffff14; }
+      .sym { fill: #fafaf9; }
+      .blank { fill: #78716c; }
+      .frame { stroke: #60a5fa; }
+      .pill { fill: #60a5fa; }
+      .label { fill: #0c0a09; }
+    }
+  </style>
+  <rect class="cell" x="3" y="58" width="50" height="64" rx="10"/>
+  <rect class="cell" x="59" y="58" width="50" height="64" rx="10"/>
+  <rect class="in" x="115" y="58" width="50" height="64" rx="10"/>
+  <rect class="in" x="171" y="58" width="50" height="64" rx="10"/>
+  <rect class="in" x="227" y="58" width="50" height="64" rx="10"/>
+  <rect class="in" x="283" y="58" width="50" height="64" rx="10"/>
+  <rect class="in" x="339" y="58" width="50" height="64" rx="10"/>
+  <rect class="in" x="395" y="58" width="50" height="64" rx="10"/>
+  <rect class="in" x="451" y="58" width="50" height="64" rx="10"/>
+  <rect class="cell" x="507" y="58" width="50" height="64" rx="10"/>
+  <rect class="cell" x="563" y="58" width="50" height="64" rx="10"/>
+  <rect class="cell" x="619" y="58" width="50" height="64" rx="10"/>
+  <rect class="cell" x="675" y="58" width="50" height="64" rx="10"/>
+  <rect class="blank" x="20" y="104" width="16" height="3" rx="1.5"/>
+  <rect class="blank" x="76" y="104" width="16" height="3" rx="1.5"/>
+  <text class="sym" x="140" y="101" text-anchor="middle">1</text>
+  <text class="sym" x="196" y="101" text-anchor="middle">1</text>
+  <text class="sym" x="252" y="101" text-anchor="middle">1</text>
+  <text class="sym" x="308" y="101" text-anchor="middle">+</text>
+  <text class="sym" x="364" y="101" text-anchor="middle">1</text>
+  <text class="sym" x="420" y="101" text-anchor="middle">1</text>
+  <text class="sym" x="476" y="101" text-anchor="middle">=</text>
+  <rect class="blank" x="524" y="104" width="16" height="3" rx="1.5"/>
+  <rect class="blank" x="580" y="104" width="16" height="3" rx="1.5"/>
+  <rect class="blank" x="636" y="104" width="16" height="3" rx="1.5"/>
+  <rect class="blank" x="692" y="104" width="16" height="3" rx="1.5"/>
+  <rect class="frame" x="280" y="53" width="58" height="72" rx="13"/>
+  <rect class="pill" x="272" y="12" width="72" height="24" rx="12"/>
+  <path class="pill" d="M303 36h10l-5 6z"/>
+  <text class="label" x="308" y="29" text-anchor="middle">findPlus</text>
+</svg>
