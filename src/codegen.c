@@ -107,32 +107,127 @@ static void htmlEscape(FILE *out, const char *s) {
   }
 }
 
+static int isNameChar(char c) {
+  return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+         (c >= '0' && c <= '9') || c == '_';
+}
+
+static int emitKnownPlaceholder(const char *name, size_t len, const Machine *m,
+                                FILE *out) {
+  if (len == 5 && !strncmp(name, "TITLE", 5)) {
+    htmlEscape(out, m->name);
+    return 1;
+  }
+  if (len == 5 && !strncmp(name, "STYLE", 5)) {
+    fputs(template_style_css, out);
+    return 1;
+  }
+  if (len == 6 && !strncmp(name, "ENGINE", 6)) {
+    fputs(template_engine_js, out);
+    return 1;
+  }
+  if (len == 3 && !strncmp(name, "APP", 3)) {
+    fputs(template_app_js, out);
+    return 1;
+  }
+  if (len == 4 && !strncmp(name, "DATA", 4)) {
+    emitData(m, out);
+    return 1;
+  }
+  return 0;
+}
+
+/* Formatter-tolerant form: { <ws> { <ws> NAME [;] <ws> } <ws> } (e.g. when an
+ * autoformatter splits {{NAME}}). Only known placeholder names are consumed. */
+static const char *matchMangledPlaceholder(const char *p, const Machine *m,
+                                           FILE *out) {
+  const char *q = p;
+  if (*q != '{')
+    return NULL;
+  q++;
+  while (*q == ' ' || *q == '\t' || *q == '\n' || *q == '\r')
+    q++;
+  if (*q != '{')
+    return NULL;
+  q++;
+  while (*q == ' ' || *q == '\t' || *q == '\n' || *q == '\r')
+    q++;
+  const char *name = q;
+  while (isNameChar(*q))
+    q++;
+  size_t len = (size_t)(q - name);
+  if (len == 0)
+    return NULL;
+  while (*q == ' ' || *q == '\t' || *q == '\n' || *q == '\r')
+    q++;
+  if (*q == ';')
+    q++;
+  while (*q == ' ' || *q == '\t' || *q == '\n' || *q == '\r')
+    q++;
+  if (*q != '}')
+    return NULL;
+  q++;
+  while (*q == ' ' || *q == '\t' || *q == '\n' || *q == '\r')
+    q++;
+  if (*q != '}')
+    return NULL;
+  q++;
+  if (!emitKnownPlaceholder(name, len, m, out))
+    return NULL;
+  return q;
+}
+
 /* Copy the page template, replacing {{NAME}} placeholders in a single pass
- * so substituted content is never scanned again. */
+ * so substituted content is never scanned again. Accepts formatter-mangled
+ * placeholders (spaced braces / optional semicolon) for known names. */
 void emitHtml(const Machine *m, FILE *out) {
   const char *p = template_index_html;
   while (*p) {
     const char *open = strstr(p, "{{");
-    const char *close = open ? strstr(open, "}}") : NULL;
-    if (!open || !close) {
-      fputs(p, out);
-      break;
+    const char *mangled = NULL;
+    /* Find the earliest mangled `{ <ws> {` candidate before a normal `{{`. */
+    for (const char *s = p; *s; s++) {
+      if (*s != '{')
+        continue;
+      const char *t = s + 1;
+      while (*t == ' ' || *t == '\t' || *t == '\n' || *t == '\r')
+        t++;
+      if (*t == '{' && t != s + 1) {
+        mangled = s;
+        break;
+      }
+      if (*t == '{')
+        break; /* this is a normal `{{`, handled by the strstr path */
     }
-    fwrite(p, 1, (size_t)(open - p), out);
-    size_t len = (size_t)(close - open - 2);
-    const char *name = open + 2;
-    if (len == 5 && !strncmp(name, "TITLE", len))
-      htmlEscape(out, m->name);
-    else if (len == 5 && !strncmp(name, "STYLE", len))
-      fputs(template_style_css, out);
-    else if (len == 6 && !strncmp(name, "ENGINE", len))
-      fputs(template_engine_js, out);
-    else if (len == 3 && !strncmp(name, "APP", len))
-      fputs(template_app_js, out);
-    else if (len == 4 && !strncmp(name, "DATA", len))
-      emitData(m, out);
-    else
-      fwrite(open, 1, (size_t)(close + 2 - open), out);
-    p = close + 2;
+
+    if (open && (!mangled || open <= mangled)) {
+      const char *close = strstr(open, "}}");
+      if (!close) {
+        fputs(p, out);
+        break;
+      }
+      fwrite(p, 1, (size_t)(open - p), out);
+      size_t len = (size_t)(close - open - 2);
+      const char *name = open + 2;
+      if (!emitKnownPlaceholder(name, len, m, out))
+        fwrite(open, 1, (size_t)(close + 2 - open), out);
+      p = close + 2;
+      continue;
+    }
+
+    if (mangled) {
+      fwrite(p, 1, (size_t)(mangled - p), out);
+      const char *next = matchMangledPlaceholder(mangled, m, out);
+      if (next)
+        p = next;
+      else {
+        fputc(*mangled, out);
+        p = mangled + 1;
+      }
+      continue;
+    }
+
+    fputs(p, out);
+    break;
   }
 }
