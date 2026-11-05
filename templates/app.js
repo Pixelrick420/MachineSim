@@ -11,7 +11,7 @@
     state: $('stat-state'), step: $('stat-step'), read: $('stat-read'), status: $('stat-status'),
     reset: $('btn-reset'), back: $('btn-back'), stepBtn: $('btn-step'), play: $('btn-play'), playLabel: $('play-label'),
     speed: $('speed'), speedOut: $('speed-out'), table: $('table'),
-    form: $('input-form'), input: $('input'), error: $('input-error'),
+    form: $('input-form'), input: $('input'), note: $('input-note'), error: $('input-error'),
     contents: $('contents'), contentsNote: $('contents-note'), meta: $('meta'), theme: $('theme'),
   };
 
@@ -300,18 +300,26 @@
   els.reset.addEventListener('click', () => resetMachine());
   els.speed.addEventListener('input', readSpeed);
 
+  /** Show a message, or hide it with null. The text stays put while the error fades out. */
+  function showInputError(message) {
+    if (message) els.error.textContent = message;
+    els.error.classList.toggle('show', Boolean(message));
+    els.note.classList.toggle('invalid', Boolean(message));
+    if (message) els.input.setAttribute('aria-invalid', 'true'); else els.input.removeAttribute('aria-invalid');
+  }
+
   els.form.addEventListener('submit', (e) => {
     e.preventDefault();
     const value = els.input.value.trim();
     const bad = engine.invalidSymbol(value);
     if (bad !== null) {
-      els.error.textContent = `Symbol "${bad}" is not in the machine's alphabet.`;
+      showInputError(`Symbol "${bad}" is not in the alphabet.`);
       return;
     }
-    els.error.textContent = '';
+    showInputError(null);
     resetMachine(value);
   });
-  els.input.addEventListener('input', () => { els.error.textContent = ''; });
+  els.input.addEventListener('input', () => showInputError(null));
 
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.ctrlKey || e.metaKey || e.altKey) return;

@@ -65,10 +65,13 @@ try { var t = localStorage.getItem('turing-theme'); if (t === 'light' || t === '
       <div class="card panel">
         <h2 class="card-title">Input</h2>
         <form class="field" id="input-form" autocomplete="off">
-          <input type="text" id="input" spellcheck="false" aria-label="Input string" placeholder="empty">
+          <input type="text" id="input" spellcheck="false" aria-label="Input string" aria-describedby="input-hint input-error" placeholder="empty">
           <button type="submit" data-static>Apply</button>
         </form>
-        <p class="error" id="input-error" role="alert"></p>
+        <div class="note" id="input-note">
+          <p class="hint" id="input-hint">Apply restarts the machine on this input.</p>
+          <p class="error" id="input-error" role="alert"></p>
+        </div>
       </div>
       <div class="card panel">
         <h2 class="card-title">Tape contents</h2>

@@ -306,7 +306,31 @@ input[type="text"] {
   flex: 1; min-width: 0; font-family: var(--mono); font-size: 14px; color: var(--text);
   background: var(--surface); border: 1px solid var(--input-border); border-radius: 10px; padding: 8px 12px;
 }
-.error { margin: 8px 0 0; font-size: 13px; color: var(--bad); min-height: 18px; }
+/* The helper line and the error share one grid cell, so nothing is reserved
+ * that stays empty. The error enters from below (12px, 4px blur, 300ms) and
+ * leaves faster and smaller (150ms, fixed -12px). @starting-style supplies the
+ * enter pose, and display is transitioned so a hidden error also leaves the
+ * accessibility tree. */
+.note { display: grid; margin-top: 8px; }
+.note > p { grid-area: 1 / 1; margin: 0; }
+.note .hint { transition: opacity 150ms ease-out; }
+.note.invalid .hint { opacity: 0; }
+.error {
+  display: none;
+  font-size: 13px; color: var(--bad);
+  opacity: 0;
+  transition-property: opacity, display;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+  transition-behavior: allow-discrete;
+}
+.error.show { display: block; opacity: 1; transition-duration: 300ms; }
+@starting-style { .error.show { opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  .error { translate: 0 -12px; filter: blur(4px); transition-property: opacity, translate, filter, display; }
+  .error.show { translate: 0 0; filter: blur(0); }
+  @starting-style { .error.show { translate: 0 12px; filter: blur(4px); } }
+}
 .kv { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 13px; }
 .kv dt { color: var(--muted); }
 .kv dd { margin: 0; font-family: var(--mono); overflow-wrap: anywhere; }
