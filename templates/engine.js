@@ -1,23 +1,22 @@
-'use strict';
+"use strict";
 
-/*
- * Turing machine engine. Pure logic, no DOM access.
- *
- * Symbols and states are mapped to small integers so that millions of steps
- * can run per second. The tape is a growable typed array centred on the
- * origin; history is a ring buffer so undo costs constant memory per step.
- */
 class TuringEngine {
   constructor(machine, input) {
     this.machine = machine;
     this.HISTORY = 1 << 20;
     this.MAX_TAPE = 1 << 26;
 
-    // Index 0 is always the blank symbol so a zeroed tape is blank.
     const symbols = [machine.blank];
-    const addSymbol = (c) => { if (!symbols.includes(c)) symbols.push(c); };
+    const addSymbol = (c) => {
+      if (!symbols.includes(c)) symbols.push(c);
+    };
     machine.alphabet.forEach(addSymbol);
-    machine.states.forEach((s) => s.rules.forEach((r) => { addSymbol(r.read); addSymbol(r.write); }));
+    machine.states.forEach((s) =>
+      s.rules.forEach((r) => {
+        addSymbol(r.read);
+        addSymbol(r.write);
+      }),
+    );
     this.symbols = symbols;
     this.symIndex = new Map(symbols.map((c, i) => [c, i]));
 
@@ -38,7 +37,8 @@ class TuringEngine {
     machine.states.forEach((state, si) => {
       state.rules.forEach((r) => {
         const k = si * S + this.symIndex.get(r.read);
-        this.tNext[k] = r.next === 'HALT' ? this.HALT : this.stateIndex.get(r.next);
+        this.tNext[k] =
+          r.next === "HALT" ? this.HALT : this.stateIndex.get(r.next);
         this.tWrite[k] = this.symIndex.get(r.write);
         this.tMove[k] = moves[r.move];
         this.rules[k] = r;
@@ -52,7 +52,6 @@ class TuringEngine {
     this.reset(input === undefined ? machine.input : input);
   }
 
-  /** Returns the offending character, or null if every symbol is known. */
   invalidSymbol(input) {
     for (const c of input) if (!this.symIndex.has(c)) return c;
     return null;
@@ -71,7 +70,10 @@ class TuringEngine {
       this.tape[this.origin + i] = s;
       if (s !== 0) {
         this.nonBlank++;
-        if (this.hi < this.lo) { this.lo = i; this.hi = i; } else this.hi = i;
+        if (this.hi < this.lo) {
+          this.lo = i;
+          this.hi = i;
+        } else this.hi = i;
       }
     }
     this.head = 0;
@@ -94,17 +96,27 @@ class TuringEngine {
     return true;
   }
 
-  get halted() { return this.state === this.HALT; }
-  get stuck() { return this.state !== this.HALT && this.tNext[this.currentKey] < 0; }
-  get finished() { return this.halted || this.limit || this.stuck; }
-  get currentKey() { return this.state * this.S + this.readIndex(this.head); }
-  get stateName() { return this.halted ? 'HALT' : this.stateNames[this.state]; }
+  get halted() {
+    return this.state === this.HALT;
+  }
+  get stuck() {
+    return this.state !== this.HALT && this.tNext[this.currentKey] < 0;
+  }
+  get finished() {
+    return this.halted || this.limit || this.stuck;
+  }
+  get currentKey() {
+    return this.state * this.S + this.readIndex(this.head);
+  }
+  get stateName() {
+    return this.halted ? "HALT" : this.stateNames[this.state];
+  }
 
   get status() {
-    if (this.halted) return 'halted';
-    if (this.limit) return 'limit';
-    if (this.stuck) return 'stuck';
-    return this.steps === 0 ? 'ready' : 'active';
+    if (this.halted) return "halted";
+    if (this.limit) return "limit";
+    if (this.stuck) return "stuck";
+    return this.steps === 0 ? "ready" : "active";
   }
 
   readIndex(pos) {
@@ -112,17 +124,27 @@ class TuringEngine {
     return i >= 0 && i < this.cap ? this.tape[i] : 0;
   }
 
-  read(pos) { return this.symbols[this.readIndex(pos)]; }
+  read(pos) {
+    return this.symbols[this.readIndex(pos)];
+  }
 
   /** Run up to `max` transitions. Returns how many were executed. */
   run(max) {
-    const S = this.S, HALT = this.HALT;
+    const S = this.S,
+      HALT = this.HALT;
     const { tNext, tWrite, tMove, hHead, hState, hSym } = this;
     const MASK = this.HISTORY - 1;
-    let tape = this.tape, origin = this.origin, cap = this.cap;
-    let head = this.head, state = this.state, steps = this.steps;
-    let hp = this.histPos, hl = this.histLen, nb = this.nonBlank;
-    let lo = this.lo, hi = this.hi;
+    let tape = this.tape,
+      origin = this.origin,
+      cap = this.cap;
+    let head = this.head,
+      state = this.state,
+      steps = this.steps;
+    let hp = this.histPos,
+      hl = this.histLen,
+      nb = this.nonBlank;
+    let lo = this.lo,
+      hi = this.hi;
     let n = 0;
 
     while (n < max && state !== HALT) {
@@ -132,17 +154,22 @@ class TuringEngine {
       const next = tNext[k];
       if (next < 0) break;
 
-      hHead[hp] = head; hState[hp] = state; hSym[hp] = sym;
+      hHead[hp] = head;
+      hState[hp] = state;
+      hSym[hp] = sym;
       hp = (hp + 1) & MASK;
       if (hl < MASK + 1) hl++;
 
       const w = tWrite[k];
       if (w !== sym) {
         tape[idx] = w;
-        if (sym === 0) nb++; else if (w === 0) nb--;
+        if (sym === 0) nb++;
+        else if (w === 0) nb--;
         if (w !== 0) {
-          if (hi < lo) { lo = head; hi = head; }
-          else if (head < lo) lo = head;
+          if (hi < lo) {
+            lo = head;
+            hi = head;
+          } else if (head < lo) lo = head;
           else if (head > hi) hi = head;
         }
       }
@@ -153,19 +180,33 @@ class TuringEngine {
 
       const i2 = head + origin;
       if (i2 < 2 || i2 >= cap - 2) {
-        this.tape = tape; this.origin = origin; this.cap = cap;
-        if (!this._grow()) { this.limit = true; break; }
-        tape = this.tape; origin = this.origin; cap = this.cap;
+        this.tape = tape;
+        this.origin = origin;
+        this.cap = cap;
+        if (!this._grow()) {
+          this.limit = true;
+          break;
+        }
+        tape = this.tape;
+        origin = this.origin;
+        cap = this.cap;
       }
     }
 
-    this.head = head; this.state = state; this.steps = steps;
-    this.histPos = hp; this.histLen = hl; this.nonBlank = nb;
-    this.lo = lo; this.hi = hi;
+    this.head = head;
+    this.state = state;
+    this.steps = steps;
+    this.histPos = hp;
+    this.histLen = hl;
+    this.nonBlank = nb;
+    this.lo = lo;
+    this.hi = hi;
     return n;
   }
 
-  step() { return this.run(1) === 1; }
+  step() {
+    return this.run(1) === 1;
+  }
 
   /** Undo one transition. Returns false if history is exhausted. */
   back() {
@@ -178,7 +219,8 @@ class TuringEngine {
     const idx = head + this.origin;
     const cur = this.tape[idx];
     if (cur !== sym) {
-      if (cur === 0) this.nonBlank++; else if (sym === 0) this.nonBlank--;
+      if (cur === 0) this.nonBlank++;
+      else if (sym === 0) this.nonBlank--;
       this.tape[idx] = sym;
     }
     this.head = head;
@@ -194,21 +236,24 @@ class TuringEngine {
     const p = (this.histPos - 1) & (this.HISTORY - 1);
     const key = this.hState[p] * this.S + this.hSym[p];
     return {
-      pos: this.hHead[p], key, rule: this.rules[key],
-      state: this.stateNames[this.hState[p]], read: this.symbols[this.hSym[p]],
+      pos: this.hHead[p],
+      key,
+      rule: this.rules[key],
+      state: this.stateNames[this.hState[p]],
+      read: this.symbols[this.hSym[p]],
     };
   }
 
   /** Non-blank span of the tape as a string, or null if longer than maxLen. */
   contents(maxLen) {
-    if (this.hi < this.lo || this.nonBlank === 0) return '';
+    if (this.hi < this.lo || this.nonBlank === 0) return "";
     if (this.hi - this.lo + 1 > maxLen) return null;
-    let out = '';
+    let out = "";
     for (let p = this.lo; p <= this.hi; p++) out += this.read(p);
     return out;
   }
 }
 
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== "undefined" && module.exports) {
   module.exports = { TuringEngine };
 }

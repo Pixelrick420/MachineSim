@@ -1,28 +1,49 @@
-'use strict';
+"use strict";
 
 (function () {
   const $ = (id) => document.getElementById(id);
-  const machine = JSON.parse($('machine-data').textContent);
+  const machine = JSON.parse($("machine-data").textContent);
   const engine = new TuringEngine(machine, machine.input);
   const blank = machine.blank;
 
   const els = {
-    viewport: $('viewport'), track: $('track'), headState: $('head-state'), last: $('last'),
-    state: $('stat-state'), step: $('stat-step'), read: $('stat-read'), status: $('stat-status'),
-    reset: $('btn-reset'), back: $('btn-back'), stepBtn: $('btn-step'), play: $('btn-play'), playLabel: $('play-label'),
-    speed: $('speed'), speedOut: $('speed-out'), table: $('table'),
-    form: $('input-form'), input: $('input'), note: $('input-note'), error: $('input-error'),
-    contents: $('contents'), contentsNote: $('contents-note'), meta: $('meta'), theme: $('theme'),
+    viewport: $("viewport"),
+    track: $("track"),
+    headState: $("head-state"),
+    last: $("last"),
+    state: $("stat-state"),
+    step: $("stat-step"),
+    read: $("stat-read"),
+    status: $("stat-status"),
+    reset: $("btn-reset"),
+    back: $("btn-back"),
+    stepBtn: $("btn-step"),
+    play: $("btn-play"),
+    playLabel: $("play-label"),
+    speed: $("speed"),
+    speedOut: $("speed-out"),
+    table: $("table"),
+    form: $("input-form"),
+    input: $("input"),
+    note: $("input-note"),
+    error: $("input-error"),
+    contents: $("contents"),
+    contentsNote: $("contents-note"),
+    meta: $("meta"),
+    theme: $("theme"),
   };
 
-  // ---------- tape ----------
   let cw = 56;
   let half = 12;
   let inputLen = engine.input.length;
   const cells = new Map();
 
   function measure() {
-    cw = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--cw'), 10) || 56;
+    cw =
+      parseInt(
+        getComputedStyle(document.documentElement).getPropertyValue("--cw"),
+        10,
+      ) || 56;
     half = Math.ceil(els.viewport.clientWidth / 2 / cw) + 2;
   }
 
@@ -30,16 +51,17 @@
     if (el._ch === ch) return;
     el._ch = ch;
     el.firstChild.textContent = ch;
-    el.firstChild.className = ch === blank ? (ch === '_' ? 'sym blank low' : 'sym blank') : 'sym';
+    el.firstChild.className =
+      ch === blank ? (ch === "_" ? "sym blank low" : "sym blank") : "sym";
   }
 
   function makeCell(i) {
-    const el = document.createElement('div');
-    el.className = i >= 0 && i < inputLen ? 'cell in' : 'cell';
-    el.style.left = i * cw + 'px';
-    const sym = document.createElement('span');
-    const idx = document.createElement('span');
-    idx.className = 'idx';
+    const el = document.createElement("div");
+    el.className = i >= 0 && i < inputLen ? "cell in" : "cell";
+    el.style.left = i * cw + "px";
+    const sym = document.createElement("span");
+    const idx = document.createElement("span");
+    idx.className = "idx";
     idx.textContent = i;
     el.append(sym, idx);
     el._ch = null;
@@ -48,73 +70,82 @@
 
   function clearTape() {
     cells.clear();
-    els.track.textContent = '';
+    els.track.textContent = "";
   }
 
   function renderTape(slideMs, delayMs) {
     const head = engine.head;
     for (const [i, el] of cells) {
-      if (i < head - half || i > head + half) { el.remove(); cells.delete(i); }
+      if (i < head - half || i > head + half) {
+        el.remove();
+        cells.delete(i);
+      }
     }
     for (let i = head - half; i <= head + half; i++) {
       let el = cells.get(i);
-      if (!el) { el = makeCell(i); cells.set(i, el); els.track.appendChild(el); }
+      if (!el) {
+        el = makeCell(i);
+        cells.set(i, el);
+        els.track.appendChild(el);
+      }
       setSymbol(el, engine.read(i));
     }
-    els.track.style.transition = slideMs > 0
-      ? `transform ${slideMs}ms cubic-bezier(0.4, 0, 0.2, 1) ${delayMs}ms` : 'none';
+    els.track.style.transition =
+      slideMs > 0
+        ? `transform ${slideMs}ms cubic-bezier(0.4, 0, 0.2, 1) ${delayMs}ms`
+        : "none";
     els.track.style.transform = `translateX(${-(head * cw + cw / 2)}px)`;
   }
 
   function flashWrite(pos) {
     const el = cells.get(pos);
     if (!el) return;
-    el.classList.add('wrote');      // snap to the start pose
-    void el.offsetWidth;            // commit it
-    el.classList.remove('wrote');   // the cell's own transitions carry it back to rest
+    el.classList.add("wrote"); // snap to the start pose
+    void el.offsetWidth; // commit it
+    el.classList.remove("wrote"); // the cell's own transitions carry it back to rest
   }
 
-  // ---------- table ----------
   const tdByKey = new Map();
   const rowByState = new Map();
-  let curTd = null, curRow = null;
+  let curTd = null,
+    curRow = null;
 
   function buildTable() {
-    const head = document.createElement('thead');
-    const hr = document.createElement('tr');
-    hr.appendChild(document.createElement('th'));
+    const head = document.createElement("thead");
+    const hr = document.createElement("tr");
+    hr.appendChild(document.createElement("th"));
     engine.symbols.forEach((s) => {
-      const th = document.createElement('th');
+      const th = document.createElement("th");
       th.textContent = s;
       hr.appendChild(th);
     });
     head.appendChild(hr);
-    const body = document.createElement('tbody');
+    const body = document.createElement("tbody");
     engine.stateNames.forEach((name, si) => {
-      const tr = document.createElement('tr');
-      const th = document.createElement('th');
-      th.scope = 'row';
+      const tr = document.createElement("tr");
+      const th = document.createElement("th");
+      th.scope = "row";
       if (si === engine.startState) {
-        const mark = document.createElement('span');
-        mark.className = 'start-mark';
-        mark.title = 'start state';
+        const mark = document.createElement("span");
+        mark.className = "start-mark";
+        mark.title = "start state";
         th.appendChild(mark);
       }
       th.appendChild(document.createTextNode(name));
       tr.appendChild(th);
       engine.symbols.forEach((_, ci) => {
         const k = si * engine.S + ci;
-        const td = document.createElement('td');
+        const td = document.createElement("td");
         const r = engine.rules[k];
         if (!r) {
-          td.className = 'empty';
-          td.textContent = '-';
+          td.className = "empty";
+          td.textContent = "-";
         } else {
           td.appendChild(document.createTextNode(`${r.write} ${r.move[0]} `));
-          if (r.next === 'HALT') {
-            const h = document.createElement('span');
-            h.className = 'halt';
-            h.textContent = 'HALT';
+          if (r.next === "HALT") {
+            const h = document.createElement("span");
+            h.className = "halt";
+            h.textContent = "HALT";
             td.appendChild(h);
           } else {
             td.appendChild(document.createTextNode(r.next));
@@ -130,19 +161,23 @@
   }
 
   function highlightRule() {
-    if (curTd) curTd.classList.remove('cur');
-    if (curRow) curRow.classList.remove('cur-row');
+    if (curTd) curTd.classList.remove("cur");
+    if (curRow) curRow.classList.remove("cur-row");
     curTd = curRow = null;
     if (engine.halted) return;
     curRow = rowByState.get(engine.state);
-    curRow.classList.add('cur-row');
+    curRow.classList.add("cur-row");
     curTd = tdByKey.get(engine.currentKey);
-    curTd.classList.add('cur');
+    curTd.classList.add("cur");
   }
 
   // ---------- readouts ----------
   const STATUS = {
-    ready: 'Ready', active: 'Paused', halted: 'Halted', stuck: 'Stuck', limit: 'Tape limit',
+    ready: "Ready",
+    active: "Paused",
+    halted: "Halted",
+    stuck: "Stuck",
+    limit: "Tape limit",
   };
 
   function fmtRule(t) {
@@ -156,39 +191,42 @@
     els.headState.textContent = engine.stateName;
     els.step.textContent = engine.steps.toLocaleString();
     els.read.textContent = engine.read(engine.head);
-    const label = playing && status === 'active' ? 'Running' : STATUS[status];
+    const label = playing && status === "active" ? "Running" : STATUS[status];
     els.status.textContent = label;
-    els.status.className = 'badge ' + (playing && status === 'active' ? 'active' : status);
+    els.status.className =
+      "badge " + (playing && status === "active" ? "active" : status);
 
-    els.last.classList.toggle('bad', status === 'stuck' || status === 'limit');
-    if (status === 'stuck') {
+    els.last.classList.toggle("bad", status === "stuck" || status === "limit");
+    if (status === "stuck") {
       els.last.textContent = `No rule for state ${engine.stateName} reading ${engine.read(engine.head)}`;
-    } else if (status === 'limit') {
-      els.last.textContent = 'Tape size limit reached';
+    } else if (status === "limit") {
+      els.last.textContent = "Tape size limit reached";
     } else {
       const t = engine.lastTransition();
-      els.last.textContent = t ? fmtRule(t) : 'Press play or step to begin';
+      els.last.textContent = t ? fmtRule(t) : "Press play or step to begin";
     }
 
     const text = engine.contents(160);
-    els.contents.textContent = '';
+    els.contents.textContent = "";
     if (text === null) {
       els.contentsNote.textContent = `${engine.nonBlank.toLocaleString()} non-blank cells`;
     } else {
       for (const ch of text) {
-        const s = document.createElement('span');
-        if (ch === blank) s.className = 'blank';
+        const s = document.createElement("span");
+        if (ch === blank) s.className = "blank";
         s.textContent = ch;
         els.contents.appendChild(s);
       }
-      els.contentsNote.textContent = text ? `${engine.nonBlank.toLocaleString()} non-blank cells` : 'Tape is empty';
+      els.contentsNote.textContent = text
+        ? `${engine.nonBlank.toLocaleString()} non-blank cells`
+        : "Tape is empty";
     }
 
     const done = engine.finished;
     els.stepBtn.disabled = done;
     els.play.disabled = done;
     els.back.disabled = engine.histLen === 0;
-    els.playLabel.textContent = playing ? 'Pause' : 'Play';
+    els.playLabel.textContent = playing ? "Pause" : "Play";
     els.play.dataset.playing = String(playing);
   }
 
@@ -208,23 +246,31 @@
   function readSpeed() {
     const v = +els.speed.value;
     rate = v >= 100 ? Infinity : 0.5 * Math.pow(10, v * 0.0335);
-    if (rate === Infinity) els.speedOut.textContent = 'max';
-    else if (rate < 10) els.speedOut.textContent = rate.toFixed(1) + ' steps/s';
-    else if (rate < 1000) els.speedOut.textContent = Math.round(rate) + ' steps/s';
-    else els.speedOut.textContent = (rate / 1000).toFixed(1) + 'k steps/s';
+    if (rate === Infinity) els.speedOut.textContent = "max";
+    else if (rate < 10) els.speedOut.textContent = rate.toFixed(1) + " steps/s";
+    else if (rate < 1000)
+      els.speedOut.textContent = Math.round(rate) + " steps/s";
+    else els.speedOut.textContent = (rate / 1000).toFixed(1) + "k steps/s";
   }
 
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   /** Run `n` steps, animating only when single steps are slow enough to see. */
   function advance(n) {
     const r = Math.min(rate, 1e9);
     const done = engine.run(n);
-    if (done === 0) { render(0, 0); return; }
+    if (done === 0) {
+      render(0, 0);
+      return;
+    }
     if (done === 1 && r <= 60) {
       // Under reduced motion the tape jumps; the write highlight still fades in as color and opacity.
       const interval = 1000 / r;
-      const slide = reduceMotion.matches ? 0 : r <= 12 ? Math.min(380, Math.max(80, interval * 0.7)) : interval * 0.9;
+      const slide = reduceMotion.matches
+        ? 0
+        : r <= 12
+          ? Math.min(380, Math.max(80, interval * 0.7))
+          : interval * 0.9;
       const delay = r <= 3 && !reduceMotion.matches ? 140 : 0;
       const t = engine.lastTransition();
       render(slide, delay);
@@ -241,14 +287,21 @@
     if (rate === Infinity) {
       const t0 = performance.now();
       let total = 0;
-      while (performance.now() - t0 < 12 && !engine.finished) total += engine.run(20000);
+      while (performance.now() - t0 < 12 && !engine.finished)
+        total += engine.run(20000);
       if (total) render(0, 0);
     } else {
       acc += (dt * rate) / 1000;
       const n = Math.min(Math.floor(acc), 2e6);
-      if (n > 0) { acc -= n; advance(n); }
+      if (n > 0) {
+        acc -= n;
+        advance(n);
+      }
     }
-    if (engine.finished) { pause(); return; }
+    if (engine.finished) {
+      pause();
+      return;
+    }
     raf = requestAnimationFrame(frame);
   }
 
@@ -294,21 +347,22 @@
   }
 
   // ---------- wiring ----------
-  els.play.addEventListener('click', () => (playing ? pause() : play()));
-  els.stepBtn.addEventListener('click', stepOnce);
-  els.back.addEventListener('click', stepBack);
-  els.reset.addEventListener('click', () => resetMachine());
-  els.speed.addEventListener('input', readSpeed);
+  els.play.addEventListener("click", () => (playing ? pause() : play()));
+  els.stepBtn.addEventListener("click", stepOnce);
+  els.back.addEventListener("click", stepBack);
+  els.reset.addEventListener("click", () => resetMachine());
+  els.speed.addEventListener("input", readSpeed);
 
   /** Show a message, or hide it with null. The text stays put while the error fades out. */
   function showInputError(message) {
     if (message) els.error.textContent = message;
-    els.error.classList.toggle('show', Boolean(message));
-    els.note.classList.toggle('invalid', Boolean(message));
-    if (message) els.input.setAttribute('aria-invalid', 'true'); else els.input.removeAttribute('aria-invalid');
+    els.error.classList.toggle("show", Boolean(message));
+    els.note.classList.toggle("invalid", Boolean(message));
+    if (message) els.input.setAttribute("aria-invalid", "true");
+    else els.input.removeAttribute("aria-invalid");
   }
 
-  els.form.addEventListener('submit', (e) => {
+  els.form.addEventListener("submit", (e) => {
     e.preventDefault();
     const value = els.input.value.trim();
     const bad = engine.invalidSymbol(value);
@@ -319,24 +373,41 @@
     showInputError(null);
     resetMachine(value);
   });
-  els.input.addEventListener('input', () => showInputError(null));
+  els.input.addEventListener("input", () => showInputError(null));
 
-  document.addEventListener('keydown', (e) => {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.ctrlKey || e.metaKey || e.altKey) return;
-    if (e.key === ' ') { e.preventDefault(); playing ? pause() : play(); }
-    else if (e.key === 'ArrowRight') { e.preventDefault(); stepOnce(); }
-    else if (e.key === 'ArrowLeft') { e.preventDefault(); stepBack(); }
-    else if (e.key === 'r' || e.key === 'R') resetMachine();
+  document.addEventListener("keydown", (e) => {
+    if (
+      e.target.tagName === "INPUT" ||
+      e.target.tagName === "BUTTON" ||
+      e.ctrlKey ||
+      e.metaKey ||
+      e.altKey
+    )
+      return;
+    if (e.key === " ") {
+      e.preventDefault();
+      playing ? pause() : play();
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      stepOnce();
+    } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      stepBack();
+    } else if (e.key === "r" || e.key === "R") resetMachine();
   });
 
   let resizeTimer = 0;
-  window.addEventListener('resize', () => {
+  window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => { measure(); clearTape(); render(0, 0); }, 100);
+    resizeTimer = setTimeout(() => {
+      measure();
+      clearTape();
+      render(0, 0);
+    }, 100);
   });
 
   // ---------- theme ----------
-  const osDark = window.matchMedia('(prefers-color-scheme: dark)');
+  const osDark = window.matchMedia("(prefers-color-scheme: dark)");
 
   /**
    * Run `change` with every transition off, so the new theme lands in one frame
@@ -344,35 +415,44 @@
    * it is the click's feedback and animates no color.
    */
   function withoutTransitions(change) {
-    const style = document.createElement('style');
-    style.textContent = '*:not(.swap > .icon),*::before,*::after{transition:none !important}';
+    const style = document.createElement("style");
+    style.textContent =
+      "*:not(.swap > .icon),*::before,*::after{transition:none !important}";
     document.head.append(style);
     change();
     void document.body.offsetHeight; // force a synchronous style flush
     requestAnimationFrame(() => requestAnimationFrame(() => style.remove()));
   }
 
-  els.theme.addEventListener('click', () => {
+  els.theme.addEventListener("click", () => {
     const root = document.documentElement;
-    const dark = root.dataset.theme ? root.dataset.theme === 'dark' : osDark.matches;
-    const next = dark ? 'light' : 'dark';
-    withoutTransitions(() => { root.dataset.theme = next; });
-    try { localStorage.setItem('turing-theme', next); } catch (e) { /* storage unavailable */ }
+    const dark = root.dataset.theme
+      ? root.dataset.theme === "dark"
+      : osDark.matches;
+    const next = dark ? "light" : "dark";
+    withoutTransitions(() => {
+      root.dataset.theme = next;
+    });
+    try {
+      localStorage.setItem("turing-theme", next);
+    } catch (e) {
+      /* storage unavailable */
+    }
   });
   // The OS theme can change under a page that follows it.
-  osDark.addEventListener('change', () => withoutTransitions(() => {}));
+  osDark.addEventListener("change", () => withoutTransitions(() => {}));
 
   // ---------- init ----------
   function buildMeta() {
     const rows = [
-      ['Blank', blank],
-      ['Alphabet', machine.alphabet.join(' ')],
-      ['Start', machine.start],
-      ['States', String(machine.states.length)],
+      ["Blank", blank],
+      ["Alphabet", machine.alphabet.join(" ")],
+      ["Start", machine.start],
+      ["States", String(machine.states.length)],
     ];
     rows.forEach(([k, v]) => {
-      const dt = document.createElement('dt');
-      const dd = document.createElement('dd');
+      const dt = document.createElement("dt");
+      const dd = document.createElement("dd");
       dt.textContent = k;
       dd.textContent = v;
       els.meta.append(dt, dd);

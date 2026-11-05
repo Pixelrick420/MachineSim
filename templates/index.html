@@ -1,98 +1,237 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{TITLE}} - Turing Machine</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232563eb%22/%3E%3Crect x=%227%22 y=%226%22 width=%2218%22 height=%2220%22 rx=%225%22 fill=%22%23fff%22/%3E%3Cpath d=%22M13.5 12.5 17 10v12%22 fill=%22none%22 stroke=%22%232563eb%22 stroke-width=%223%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E">
-<script>
-// Apply a saved theme before the first paint, so it never flashes the other one.
-try { var t = localStorage.getItem('turing-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) { /* storage unavailable */ }
-</script>
-<style>
-{{STYLE}}
-</style>
-</head>
-<body>
-<div class="app">
-  <header class="top">
-    <div class="brand">
-      <span class="dot"></span>
-      <h1>{{TITLE}}</h1>
-      <span class="tag">Turing machine</span>
-    </div>
-    <button class="icon-btn" id="theme" type="button" aria-label="Toggle light and dark theme" title="Toggle theme">
-      <span class="swap"><svg class="icon icon-sun" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><circle cx="9" cy="9" r="3"/><path d="M9 2v1.5M9 14.5V16M2 9h1.5M14.5 9H16M4.05 4.05l1.06 1.06M12.89 12.89l1.06 1.06M4.05 13.95l1.06-1.06M12.89 5.11l1.06-1.06"/></svg><svg class="icon icon-moon" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M9 2.25A6.75 6.75 0 1 0 15.75 9 5 5 0 0 1 9 2.25z"/></svg></span>
-    </button>
-  </header>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{{TITLE}} - Turing Machine</title>
+        <link
+            rel="icon"
+            href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232563eb%22/%3E%3Crect x=%227%22 y=%226%22 width=%2218%22 height=%2220%22 rx=%225%22 fill=%22%23fff%22/%3E%3Cpath d=%22M13.5 12.5 17 10v12%22 fill=%22none%22 stroke=%22%232563eb%22 stroke-width=%223%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E"
+        />
+        <script>
+            try {
+                var t = localStorage.getItem("turing-theme");
+                if (t === "light" || t === "dark")
+                    document.documentElement.dataset.theme = t;
+            } catch (e) {}
+        </script>
+        <style>
+            {{STYLE}}
+        </style>
+    </head>
+    <body>
+        <div class="app">
+            <header class="top">
+                <div class="brand">
+                    <span class="dot"></span>
+                    <h1>{{TITLE}}</h1>
+                    <span class="tag">Turing machine</span>
+                </div>
+                <button
+                    class="icon-btn"
+                    id="theme"
+                    type="button"
+                    aria-label="Toggle light and dark theme"
+                    title="Toggle theme"
+                >
+                    <span class="swap"
+                        ><svg
+                            class="icon icon-sun"
+                            viewBox="0 0 18 18"
+                            aria-hidden="true"
+                            focusable="false"
+                        >
+                            <circle cx="9" cy="9" r="3" />
+                            <path
+                                d="M9 2v1.5M9 14.5V16M2 9h1.5M14.5 9H16M4.05 4.05l1.06 1.06M12.89 12.89l1.06 1.06M4.05 13.95l1.06-1.06M12.89 5.11l1.06-1.06"
+                            /></svg
+                        ><svg
+                            class="icon icon-moon"
+                            viewBox="0 0 18 18"
+                            aria-hidden="true"
+                            focusable="false"
+                        >
+                            <path
+                                d="M9 2.25A6.75 6.75 0 1 0 15.75 9 5 5 0 0 1 9 2.25z"
+                            /></svg
+                    ></span>
+                </button>
+            </header>
 
-  <section class="stats" aria-label="Machine status">
-    <div class="stat"><span class="label">State</span><span class="value" id="stat-state">-</span></div>
-    <div class="stat"><span class="label">Step</span><span class="value" id="stat-step">0</span></div>
-    <div class="stat"><span class="label">Reading</span><span class="value" id="stat-read">-</span></div>
-    <div class="stat"><span class="label">Status</span><span class="badge" id="stat-status" aria-live="polite">Ready</span></div>
-  </section>
+            <section class="stats" aria-label="Machine status">
+                <div class="stat">
+                    <span class="label">State</span
+                    ><span class="value" id="stat-state">-</span>
+                </div>
+                <div class="stat">
+                    <span class="label">Step</span
+                    ><span class="value" id="stat-step">0</span>
+                </div>
+                <div class="stat">
+                    <span class="label">Reading</span
+                    ><span class="value" id="stat-read">-</span>
+                </div>
+                <div class="stat">
+                    <span class="label">Status</span
+                    ><span class="badge" id="stat-status" aria-live="polite"
+                        >Ready</span
+                    >
+                </div>
+            </section>
 
-  <section class="card tape-card" aria-label="Tape">
-    <div class="viewport" id="viewport">
-      <div class="track" id="track"></div>
-      <div class="head-frame"><span class="head-state" id="head-state"></span></div>
-    </div>
-    <p class="last" id="last"></p>
-  </section>
+            <section class="card tape-card" aria-label="Tape">
+                <div class="viewport" id="viewport">
+                    <div class="track" id="track"></div>
+                    <div class="head-frame">
+                        <span class="head-state" id="head-state"></span>
+                    </div>
+                </div>
+                <p class="last" id="last"></p>
+            </section>
 
-  <section class="card controls" aria-label="Controls">
-    <div class="btns">
-      <button type="button" id="btn-reset"><svg class="icon" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M3.13 11.14A6.25 6.25 0 1 0 3.88 5.42M3.88 1.82v3.6h3.6"/></svg><span>Reset</span><kbd>R</kbd></button>
-      <button type="button" id="btn-back"><svg class="icon" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M11.5 4 6.5 9l5 5"/></svg><span>Back</span><kbd>&larr;</kbd></button>
-      <button type="button" id="btn-step"><svg class="icon" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M6.5 4l5 5-5 5"/></svg><span>Step</span><kbd>&rarr;</kbd></button>
-      <button type="button" id="btn-play" class="primary" data-playing="false">
-        <span class="swap"><svg class="icon icon-play" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M6 3l9 6-9 6z"/></svg><svg class="icon icon-pause" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><rect x="4" y="2" width="4" height="14" rx="1.25"/><rect x="10" y="2" width="4" height="14" rx="1.25"/></svg></span><span id="play-label">Play</span><kbd>Space</kbd>
-      </button>
-    </div>
-    <label class="speed">Speed
-      <input type="range" id="speed" min="0" max="100" value="30">
-      <output id="speed-out" for="speed"></output>
-    </label>
-  </section>
+            <section class="card controls" aria-label="Controls">
+                <div class="btns">
+                    <button type="button" id="btn-reset">
+                        <svg
+                            class="icon"
+                            viewBox="0 0 18 18"
+                            aria-hidden="true"
+                            focusable="false"
+                        >
+                            <path
+                                d="M3.13 11.14A6.25 6.25 0 1 0 3.88 5.42M3.88 1.82v3.6h3.6"
+                            /></svg
+                        ><span>Reset</span><kbd>R</kbd>
+                    </button>
+                    <button type="button" id="btn-back">
+                        <svg
+                            class="icon"
+                            viewBox="0 0 18 18"
+                            aria-hidden="true"
+                            focusable="false"
+                        >
+                            <path d="M11.5 4 6.5 9l5 5" /></svg
+                        ><span>Back</span><kbd>&larr;</kbd>
+                    </button>
+                    <button type="button" id="btn-step">
+                        <svg
+                            class="icon"
+                            viewBox="0 0 18 18"
+                            aria-hidden="true"
+                            focusable="false"
+                        >
+                            <path d="M6.5 4l5 5-5 5" /></svg
+                        ><span>Step</span><kbd>&rarr;</kbd>
+                    </button>
+                    <button
+                        type="button"
+                        id="btn-play"
+                        class="primary"
+                        data-playing="false"
+                    >
+                        <span class="swap"
+                            ><svg
+                                class="icon icon-play"
+                                viewBox="0 0 18 18"
+                                aria-hidden="true"
+                                focusable="false"
+                            >
+                                <path d="M6 3l9 6-9 6z" /></svg
+                            ><svg
+                                class="icon icon-pause"
+                                viewBox="0 0 18 18"
+                                aria-hidden="true"
+                                focusable="false"
+                            >
+                                <rect
+                                    x="4"
+                                    y="2"
+                                    width="4"
+                                    height="14"
+                                    rx="1.25"
+                                />
+                                <rect
+                                    x="10"
+                                    y="2"
+                                    width="4"
+                                    height="14"
+                                    rx="1.25"
+                                /></svg></span
+                        ><span id="play-label">Play</span><kbd>Space</kbd>
+                    </button>
+                </div>
+                <label class="speed"
+                    >Speed
+                    <input
+                        type="range"
+                        id="speed"
+                        min="0"
+                        max="100"
+                        value="30"
+                    />
+                    <output id="speed-out" for="speed"></output>
+                </label>
+            </section>
 
-  <section class="panels">
-    <div class="card panel">
-      <h2 class="card-title">Transitions</h2>
-      <div class="table-wrap"><table id="table"></table></div>
-      <p class="hint">Rows are states, columns are the symbol under the head. Cells read: write, move, next state.</p>
-    </div>
-    <div class="side">
-      <div class="card panel">
-        <h2 class="card-title">Input</h2>
-        <form class="field" id="input-form" autocomplete="off">
-          <input type="text" id="input" spellcheck="false" aria-label="Input string" aria-describedby="input-hint input-error" placeholder="empty">
-          <button type="submit" data-static>Apply</button>
-        </form>
-        <div class="note" id="input-note">
-          <p class="hint" id="input-hint">Apply restarts the machine on this input.</p>
-          <p class="error" id="input-error" role="alert"></p>
+            <section class="panels">
+                <div class="card panel">
+                    <h2 class="card-title">Transitions</h2>
+                    <div class="table-wrap"><table id="table"></table></div>
+                    <p class="hint">
+                        Rows are states, columns are the symbol under the head.
+                        Cells read: write, move, next state.
+                    </p>
+                </div>
+                <div class="side">
+                    <div class="card panel">
+                        <h2 class="card-title">Input</h2>
+                        <form class="field" id="input-form" autocomplete="off">
+                            <input
+                                type="text"
+                                id="input"
+                                spellcheck="false"
+                                aria-label="Input string"
+                                aria-describedby="input-hint input-error"
+                                placeholder="empty"
+                            />
+                            <button type="submit" data-static>Apply</button>
+                        </form>
+                        <div class="note" id="input-note">
+                            <p class="hint" id="input-hint">
+                                Apply restarts the machine on this input.
+                            </p>
+                            <p class="error" id="input-error" role="alert"></p>
+                        </div>
+                    </div>
+                    <div class="card panel">
+                        <h2 class="card-title">Tape contents</h2>
+                        <div class="contents" id="contents"></div>
+                        <p class="hint" id="contents-note"></p>
+                    </div>
+                    <div class="card panel">
+                        <h2 class="card-title">Machine</h2>
+                        <dl class="kv" id="meta"></dl>
+                    </div>
+                </div>
+            </section>
         </div>
-      </div>
-      <div class="card panel">
-        <h2 class="card-title">Tape contents</h2>
-        <div class="contents" id="contents"></div>
-        <p class="hint" id="contents-note"></p>
-      </div>
-      <div class="card panel">
-        <h2 class="card-title">Machine</h2>
-        <dl class="kv" id="meta"></dl>
-      </div>
-    </div>
-  </section>
-</div>
 
-<script id="machine-data" type="application/json">{{DATA}}</script>
-<script>
-{{ENGINE}}
-</script>
-<script>
-{{APP}}
-</script>
-</body>
+        <script id="machine-data" type="application/json">
+            {{DATA}}
+        </script>
+        <script>
+            {
+                {
+                    ENGINE;
+                }
+            }
+        </script>
+        <script>
+            {
+                {
+                    APP;
+                }
+            }
+        </script>
+    </body>
 </html>

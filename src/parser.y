@@ -32,9 +32,6 @@ STATEMENT   : BLANK ASSIGN SYM                                         { $$ = cr
             | START ASSIGN IDENTIFIER                                  { $$ = createASTNode(STATEMENT, NULL, 3, $1, $2, $3); }
             ;
 
-/* Symbols are single characters. Single lowercase letters lex as
- * identifiers, so both token kinds are accepted here and the length is
- * checked when the machine is built. */
 SYM         : SYMBOL                                                   { $$ = $1; }
             | IDENTIFIER                                               { $$ = $1; }
             ;
